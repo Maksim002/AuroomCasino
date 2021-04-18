@@ -1,0 +1,39 @@
+{
+  "project_info": {
+    "project_number": "890707483958",
+    "project_id": "auroom-app",
+    "storage_bucket": "auroom-app.appspot.com"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:890707483958:android:d2306d137291967ec92797",
+        "android_client_info": {
+          "package_name": "com.example.auroomcasino"
+        }
+      },
+      "oauth_client": [
+        {
+          "client_id": "890707483958-6uc0trlfptbhhhtt2oo9nvn77fqiojd9.apps.googleusercontent.com",
+          "client_type": 3
+        }
+      ],
+      "api_key": [
+        {
+          "current_key": "AIzaSyAAOPlC0dK-dfvVx-QuJiWbf5OgH_GLvLc"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": [
+            {
+              "client_id": "890707483958-6uc0trlfptbhhhtt2oo9nvn77fqiojd9.apps.googleusercontent.com",
+              "client_type": 3
+            }
+          ]
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}
