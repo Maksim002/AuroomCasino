@@ -7,4 +7,10 @@
     <color name="teal_700">#FF018786</color>
     <color name="black">#322D2D</color>
     <color name="white">#FFFFFFFF</color>
+
+    <array name="dot_colors">
+        <item>#03A9F4</item>
+        <item>#E65100</item>
+        <item>#FFBB00</item>
+    </array>
 </resources>

@@ -1,4 +1,4 @@
-package com.timelysoft.tsjdomcom.utils
+package com.example.auroomcasino.utils
 
 
 object MyUtils {

@@ -1,17 +1,23 @@
-package com.example.auroomcasino
+package com.example.auroomcasino.ui.main
 
 import android.annotation.SuppressLint
+import android.os.Build
 import android.os.Bundle
 import android.webkit.WebResourceRequest
 import android.webkit.WebSettings
 import android.webkit.WebView
 import android.webkit.WebViewClient
+import android.widget.ImageView
 import android.widget.Toast
 import androidx.appcompat.app.AppCompatActivity
+import com.example.auroomcasino.R
 import com.google.android.gms.tasks.OnCompleteListener
 import com.google.firebase.database.*
 import com.google.firebase.iid.FirebaseInstanceId
-import com.timelysoft.tsjdomcom.utils.MyUtils
+import com.example.auroomcasino.utils.MyUtils
+import com.timelysoft.tsjdomcom.utils.animOne
+import com.timelysoft.tsjdomcom.utils.animThree
+import com.timelysoft.tsjdomcom.utils.animTwo
 import java.util.*
 
 
@@ -24,6 +30,8 @@ class MainActivity : AppCompatActivity() {
         setContentView(R.layout.activity_main)
         // Имплементация WebView
         casinoWeb = findViewById(R.id.casino_web)
+
+        initAnim()
         initWebView()
     }
 
@@ -77,6 +85,15 @@ class MainActivity : AppCompatActivity() {
         }
     }
 
+    private fun initAnim() {
+        val imageOne: ImageView = findViewById(R.id.im)
+        val imageTwo: ImageView = findViewById(R.id.im1)
+        val imageThree: ImageView = findViewById(R.id.im2)
+        animOne(this, imageOne)
+        animTwo(this, imageTwo)
+        animThree(this, imageThree)
+    }
+
     @SuppressLint("SetJavaScriptEnabled")
     private fun initWebView() {
         //Ключи webView
@@ -98,6 +115,11 @@ class MainActivity : AppCompatActivity() {
     override fun onStart() {
         super.onStart()
         initFirebase()
+        if (Build.VERSION.SDK_INT >= 21) {
+            getWindow().setNavigationBarColor(getResources().getColor(R.color.black));
+            getWindow().setStatusBarColor(getResources().getColor(R.color.black));
+        }
+
         //для Работы в начном режиме
 //        if (WebViewFeature.isFeatureSupported(WebViewFeature.FORCE_DARK)) {
 //            WebSettingsCompat.setForceDark(casinoWeb.settings, WebSettingsCompat.FORCE_DARK_OFF)
