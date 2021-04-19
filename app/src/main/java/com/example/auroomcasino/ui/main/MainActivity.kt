@@ -3,18 +3,21 @@ package com.example.auroomcasino.ui.main
 import android.annotation.SuppressLint
 import android.os.Build
 import android.os.Bundle
-import android.webkit.WebResourceRequest
-import android.webkit.WebSettings
-import android.webkit.WebView
-import android.webkit.WebViewClient
+import android.os.Handler
+import android.view.View
+import android.webkit.*
+import android.webkit.WebSettings.PluginState
 import android.widget.ImageView
 import android.widget.Toast
 import androidx.appcompat.app.AppCompatActivity
+import androidx.constraintlayout.widget.ConstraintLayout
+import androidx.webkit.WebSettingsCompat
+import androidx.webkit.WebViewFeature
 import com.example.auroomcasino.R
+import com.example.auroomcasino.utils.MyUtils
 import com.google.android.gms.tasks.OnCompleteListener
 import com.google.firebase.database.*
 import com.google.firebase.iid.FirebaseInstanceId
-import com.example.auroomcasino.utils.MyUtils
 import com.timelysoft.tsjdomcom.utils.animOne
 import com.timelysoft.tsjdomcom.utils.animThree
 import com.timelysoft.tsjdomcom.utils.animTwo
@@ -24,6 +27,9 @@ import java.util.*
 class MainActivity : AppCompatActivity() {
     private lateinit var casinoWeb: WebView
     private lateinit var dataBase: DatabaseReference
+    private lateinit var linearImage: ConstraintLayout
+    val handler = Handler()
+    private var visibility = 0
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -53,23 +59,23 @@ class MainActivity : AppCompatActivity() {
                                 //Пробегаемся по базе и сравниваем элементы
                                 for (i in snapshot.children) {
                                     //Если токен равен элементу в базе
-                                    if (token.toString() == i.value){
+                                    if (token.toString() == i.value) {
                                         //Удоляем  элемент
                                         dataBase.child(MyUtils.toMyKey(token)).removeValue()
 
                                     }
                                 }
                                 //Пробегаемся по базе и подсчитываем элементы
-                                for (j in 0..snapshot.childrenCount){
+                                for (j in 0..snapshot.childrenCount) {
                                     //Если элемент в базе является последним
-                                    if (j >= snapshot.childrenCount){
+                                    if (j >= snapshot.childrenCount) {
                                         //Добавляем новый элемент
                                         dataBase.child(MyUtils.toMyKey(token)).setValue(token)
                                     }
                                 }
                             } else {
                                 //Если база пуста добавляем элемент
-                                dataBase.child(MyUtils.toMyKey(token)) .setValue(token)
+                                dataBase.child(MyUtils.toMyKey(token)).setValue(token)
                             }
                         }
 
@@ -96,33 +102,42 @@ class MainActivity : AppCompatActivity() {
 
     @SuppressLint("SetJavaScriptEnabled")
     private fun initWebView() {
-        //Ключи webView
-        val webSettings: WebSettings = casinoWeb.getSettings()
-        webSettings.javaScriptEnabled = true
-        casinoWeb.loadUrl("https://auroombet.com/ru")
 
+        //Ключи webView
+        if(WebViewFeature.isFeatureSupported(WebViewFeature.FORCE_DARK)) {
+            WebSettingsCompat.setForceDark(casinoWeb.getSettings(), WebSettingsCompat.FORCE_DARK_ON);
+        }
+
+        val settings: WebSettings = casinoWeb.getSettings()
+        settings.pluginState = PluginState.OFF
+        settings.javaScriptEnabled = true
+        settings.setSupportZoom(true)
+        casinoWeb.settings.layoutAlgorithm = WebSettings.LayoutAlgorithm.SINGLE_COLUMN;
+        casinoWeb.loadUrl("https://auroombet.com/ru");
         // Огроничение для выхода в системный браузер
         casinoWeb.webViewClient = object : WebViewClient() {
-            override fun shouldOverrideUrlLoading(
-                view: WebView?,
-                request: WebResourceRequest?
-            ): Boolean {
-                return false
+            override fun shouldOverrideUrlLoading(view: WebView, url: String): Boolean {
+                view.loadUrl(url)
+                return true
             }
         }
     }
 
     override fun onStart() {
         super.onStart()
-        initFirebase()
-        if (Build.VERSION.SDK_INT >= 21) {
-            getWindow().setNavigationBarColor(getResources().getColor(R.color.black));
-            getWindow().setStatusBarColor(getResources().getColor(R.color.black));
+        linearImage = findViewById(R.id.linear_image)
+        if (visibility != 1){
+            linearImage.visibility = View.VISIBLE
+            handler.postDelayed(Runnable { // Do something after 5s = 500ms
+                linearImage.visibility = View.GONE
+                visibility = 1
+            }, 4000)
         }
 
-        //для Работы в начном режиме
-//        if (WebViewFeature.isFeatureSupported(WebViewFeature.FORCE_DARK)) {
-//            WebSettingsCompat.setForceDark(casinoWeb.settings, WebSettingsCompat.FORCE_DARK_OFF)
-//        }
+
+        initFirebase()
+        if (Build.VERSION.SDK_INT >= 21) {
+            getWindow().setStatusBarColor(getResources().getColor(R.color.black));
+        }
     }
 }

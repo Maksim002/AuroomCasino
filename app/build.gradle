@@ -43,7 +43,7 @@ dependencies {
     implementation 'com.google.firebase:firebase-messaging:21.1.0'
     implementation 'com.google.firebase:firebase-database:19.7.0'
 
-
+    implementation 'androidx.webkit:webkit:1.4.0'
 
     implementation 'com.google.firebase:firebase-core:16.0.8'
     implementation 'com.google.firebase:firebase-database:16.0.1'
