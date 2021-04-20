@@ -23,7 +23,6 @@ import com.timelysoft.tsjdomcom.utils.animThree
 import com.timelysoft.tsjdomcom.utils.animTwo
 import java.util.*
 
-
 class MainActivity : AppCompatActivity() {
     private lateinit var casinoWeb: WebView
     private lateinit var dataBase: DatabaseReference
@@ -105,7 +104,11 @@ class MainActivity : AppCompatActivity() {
 
         //Ключи webView
         if(WebViewFeature.isFeatureSupported(WebViewFeature.FORCE_DARK)) {
-            WebSettingsCompat.setForceDark(casinoWeb.getSettings(), WebSettingsCompat.FORCE_DARK_ON);
+            WebSettingsCompat.setForceDark(casinoWeb.getSettings(), WebSettingsCompat.FORCE_DARK_OFF);
+            if (Build.VERSION.SDK_INT >= 21) {
+                this.supportActionBar?.show()
+                getWindow().setStatusBarColor(getResources().getColor(R.color.black));
+            }
         }
 
         val settings: WebSettings = casinoWeb.getSettings()
@@ -133,11 +136,6 @@ class MainActivity : AppCompatActivity() {
                 visibility = 1
             }, 4000)
         }
-
-
         initFirebase()
-        if (Build.VERSION.SDK_INT >= 21) {
-            getWindow().setStatusBarColor(getResources().getColor(R.color.black));
-        }
     }
 }
