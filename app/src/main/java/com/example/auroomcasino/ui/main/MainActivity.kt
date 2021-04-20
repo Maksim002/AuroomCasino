@@ -1,6 +1,7 @@
 package com.example.auroomcasino.ui.main
 
 import android.annotation.SuppressLint
+import android.graphics.Bitmap
 import android.os.Build
 import android.os.Bundle
 import android.os.Handler
@@ -27,7 +28,6 @@ class MainActivity : AppCompatActivity() {
     private lateinit var casinoWeb: WebView
     private lateinit var dataBase: DatabaseReference
     private lateinit var linearImage: ConstraintLayout
-    val handler = Handler()
     private var visibility = 0
 
     override fun onCreate(savedInstanceState: Bundle?) {
@@ -35,6 +35,7 @@ class MainActivity : AppCompatActivity() {
         setContentView(R.layout.activity_main)
         // Имплементация WebView
         casinoWeb = findViewById(R.id.casino_web)
+        linearImage = findViewById(R.id.linear_image)
 
         initAnim()
         initWebView()
@@ -102,7 +103,7 @@ class MainActivity : AppCompatActivity() {
     @SuppressLint("SetJavaScriptEnabled")
     private fun initWebView() {
 
-        //Ключи webView
+        //Приоретет к стялям приложения
         if(WebViewFeature.isFeatureSupported(WebViewFeature.FORCE_DARK)) {
             WebSettingsCompat.setForceDark(casinoWeb.getSettings(), WebSettingsCompat.FORCE_DARK_OFF);
             if (Build.VERSION.SDK_INT >= 21) {
@@ -111,6 +112,7 @@ class MainActivity : AppCompatActivity() {
             }
         }
 
+        //Ключи webView
         val settings: WebSettings = casinoWeb.getSettings()
         settings.pluginState = PluginState.OFF
         settings.javaScriptEnabled = true
@@ -123,19 +125,24 @@ class MainActivity : AppCompatActivity() {
                 view.loadUrl(url)
                 return true
             }
+
+            override fun onPageStarted(view: WebView?, url: String?, favicon: Bitmap?) {
+                super.onPageStarted(view, url, favicon)
+                if (visibility != 1){
+                linearImage.visibility = View.VISIBLE
+                }
+            }
+
+            override fun onPageFinished(view: WebView?, url: String?) {
+                super.onPageFinished(view, url)
+                linearImage.visibility = View.GONE
+                visibility = 1
+            }
         }
     }
 
     override fun onStart() {
         super.onStart()
-        linearImage = findViewById(R.id.linear_image)
-        if (visibility != 1){
-            linearImage.visibility = View.VISIBLE
-            handler.postDelayed(Runnable { // Do something after 5s = 500ms
-                linearImage.visibility = View.GONE
-                visibility = 1
-            }, 4000)
-        }
         initFirebase()
     }
 }
