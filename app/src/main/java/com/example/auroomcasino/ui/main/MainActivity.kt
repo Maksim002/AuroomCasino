@@ -5,6 +5,7 @@ import android.graphics.Bitmap
 import android.os.Build
 import android.os.Bundle
 import android.view.*
+import android.webkit.HttpAuthHandler
 import android.webkit.WebChromeClient
 import android.webkit.WebChromeClient.CustomViewCallback
 import android.webkit.WebView
@@ -67,28 +68,26 @@ class MainActivity : AppCompatActivity() {
             }
         }
 
-        webView!!.webViewClient = object : WebViewClient() {
-            override fun onPageFinished(view: WebView, url: String) {
-                super.onPageFinished(view, url)
-                webView!!.loadUrl(
-                    "javascript:(function() { " +
-                            "var element = document.getElementById('hplogo');"
-                            + "element.parentNode.removeChild(element);" +
-                            "})()"
-                )
-            }
-        }
-
         mWebViewClient = myWebViewClient()
+//        webView!!.settings.javaScriptEnabled = true
+//        webView!!.settings.domStorageEnabled = true
+
+        webView!!.settings.javaScriptEnabled = true;
+        //**enabled dom storage**
+        webView!!.settings.domStorageEnabled = true;
+        //enabling javascript
+        webView!!.settings.javaScriptCanOpenWindowsAutomatically = true;
+        //database enabled
+        webView!!.settings.databaseEnabled = true;
+
         webView!!.webViewClient = mWebViewClient!!
         mWebChromeClient = myWebChromeClient()
         webView!!.webChromeClient = mWebChromeClient
         webView!!.getSettings().setAppCacheEnabled(true);
-        webView!!.settings.javaScriptEnabled = true
-        webView!!.getSettings().setDomStorageEnabled(true);
         webView!!.settings.setAppCacheEnabled(true)
         webView!!.settings.saveFormData = true
         webView!!.loadUrl("https://auroombet.com/ru")
+
 
         // Огроничение для выхода в системный браузер
         webView!!.webViewClient = object : WebViewClient() {
@@ -169,11 +168,7 @@ class MainActivity : AppCompatActivity() {
 
     internal inner class myWebChromeClient : WebChromeClient() {
         private var mVideoProgressView: View? = null
-        override fun onShowCustomView(
-            view: View,
-            requestedOrientation: Int,
-            callback: CustomViewCallback
-        ) {
+        override fun onShowCustomView(view: View, requestedOrientation: Int, callback: CustomViewCallback) {
             onShowCustomView(view, callback) //To change body of overridden methods use File | Settings | File Templates.
         }
 
@@ -198,6 +193,8 @@ class MainActivity : AppCompatActivity() {
             }
             return mVideoProgressView
         }
+
+
 
         override fun onHideCustomView() {
             super.onHideCustomView() //To change body of overridden methods use File | Settings | File Templates.
