@@ -135,16 +135,6 @@ class MainActivity : AppCompatActivity() {
         initFirebase()
     }
 
-    override fun onPause() {
-        super.onPause() //To change body of overridden methods use File | Settings | File Templates.
-        webView!!.onPause()
-    }
-
-    override fun onResume() {
-        super.onResume() //To change body of overridden methods use File | Settings | File Templates.
-        webView!!.onResume()
-    }
-
     override fun onStop() {
         super.onStop() //To change body of overridden methods use File | Settings | File Templates.
         if (inCustomView()) {
@@ -171,6 +161,8 @@ class MainActivity : AppCompatActivity() {
         override fun onShowCustomView(view: View, requestedOrientation: Int, callback: CustomViewCallback) {
             onShowCustomView(view, callback) //To change body of overridden methods use File | Settings | File Templates.
         }
+
+
 
         override fun onShowCustomView(view: View, callback: CustomViewCallback) {
 
