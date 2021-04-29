@@ -44,11 +44,6 @@ class MainActivity : AppCompatActivity() {
     public override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_main)
-//        requestWindowFeature(Window.FEATURE_NO_TITLE);
-//        window.setFlags(
-//            WindowManager.LayoutParams.FLAG_FULLSCREEN,
-//            WindowManager.LayoutParams.FLAG_FULLSCREEN
-//        );
 
         customViewContainer = findViewById<View>(R.id.customViewContainer) as FrameLayout
         webView = findViewById<View>(R.id.webView) as WebView
@@ -69,8 +64,6 @@ class MainActivity : AppCompatActivity() {
         }
 
         mWebViewClient = myWebViewClient()
-//        webView!!.settings.javaScriptEnabled = true
-//        webView!!.settings.domStorageEnabled = true
 
         webView!!.settings.javaScriptEnabled = true;
         //**enabled dom storage**
