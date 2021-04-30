@@ -5,13 +5,11 @@ import android.graphics.Bitmap
 import android.os.Build
 import android.os.Bundle
 import android.view.*
-import android.webkit.HttpAuthHandler
 import android.webkit.WebChromeClient
 import android.webkit.WebChromeClient.CustomViewCallback
 import android.webkit.WebView
 import android.webkit.WebViewClient
 import android.widget.FrameLayout
-import android.widget.ImageView
 import android.widget.Toast
 import androidx.appcompat.app.AppCompatActivity
 import androidx.constraintlayout.widget.ConstraintLayout
@@ -19,12 +17,14 @@ import androidx.webkit.WebSettingsCompat
 import androidx.webkit.WebViewFeature
 import com.example.auroomcasino.R
 import com.example.auroomcasino.utils.MyUtils
+import com.github.loadingview.LoadingDialog
 import com.google.android.gms.tasks.OnCompleteListener
 import com.google.firebase.database.*
 import com.google.firebase.iid.FirebaseInstanceId
-import com.timelysoft.tsjdomcom.utils.animOne
-import com.timelysoft.tsjdomcom.utils.animThree
-import com.timelysoft.tsjdomcom.utils.animTwo
+import io.reactivex.Observable
+import io.reactivex.android.schedulers.AndroidSchedulers
+import kotlinx.android.synthetic.main.activity_main.*
+import java.util.concurrent.TimeUnit
 
 
 class MainActivity : AppCompatActivity() {
@@ -48,6 +48,7 @@ class MainActivity : AppCompatActivity() {
         customViewContainer = findViewById<View>(R.id.customViewContainer) as FrameLayout
         webView = findViewById<View>(R.id.webView) as WebView
         linearImage = findViewById(R.id.linear_image)
+
         initAnim()
 
         //Ключи webView
@@ -64,7 +65,7 @@ class MainActivity : AppCompatActivity() {
         }
 
         mWebViewClient = myWebViewClient()
-
+        val webSettings = webView!!.settings
         webView!!.settings.javaScriptEnabled = true;
         //**enabled dom storage**
         webView!!.settings.domStorageEnabled = true;
@@ -80,6 +81,7 @@ class MainActivity : AppCompatActivity() {
         webView!!.settings.setAppCacheEnabled(true)
         webView!!.settings.saveFormData = true
         webView!!.loadUrl("https://auroombet.com/ru")
+        webSettings.defaultFontSize = 16
 
 
         // Огроничение для выхода в системный браузер
@@ -92,28 +94,23 @@ class MainActivity : AppCompatActivity() {
             override fun onPageStarted(view: WebView?, url: String?, favicon: Bitmap?) {
                 super.onPageStarted(view, url, favicon)
                 if (visibility != 1){
+                    loadingView!!.start()
                     linearImage.visibility = View.VISIBLE
                 }
             }
 
             override fun onPageFinished(view: WebView?, url: String?) {
                 super.onPageFinished(view, url)
+                loadingView!!.stop()
                 linearImage.visibility = View.GONE
                 visibility = 1
             }
         }
     }
 
-
     private fun initAnim() {
-        val imageOne: ImageView = findViewById(R.id.im)
-        val imageTwo: ImageView = findViewById(R.id.im1)
-        val imageThree: ImageView = findViewById(R.id.im2)
-        animOne(this, imageOne)
-        animTwo(this, imageTwo)
-        animThree(this, imageThree)
+        loadingView!!.start()
     }
-
 
     fun inCustomView(): Boolean {
         return mCustomView != null
@@ -151,7 +148,11 @@ class MainActivity : AppCompatActivity() {
 
     internal inner class myWebChromeClient : WebChromeClient() {
         private var mVideoProgressView: View? = null
-        override fun onShowCustomView(view: View, requestedOrientation: Int, callback: CustomViewCallback) {
+        override fun onShowCustomView(
+            view: View,
+            requestedOrientation: Int,
+            callback: CustomViewCallback
+        ) {
             onShowCustomView(view, callback) //To change body of overridden methods use File | Settings | File Templates.
         }
 
