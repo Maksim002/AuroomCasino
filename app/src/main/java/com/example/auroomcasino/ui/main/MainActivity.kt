@@ -33,7 +33,7 @@ class MainActivity : AppCompatActivity() {
     private var mWebChromeClient: myWebChromeClient? = null
     private var mWebViewClient: myWebViewClient? = null
     private var visibility = 0
-    private var l = 0
+    private var downloadProgress = 0
     private lateinit var linearImage: ConstraintLayout
 
     @SuppressLint("ResourceType", "SetJavaScriptEnabled")
@@ -47,21 +47,20 @@ class MainActivity : AppCompatActivity() {
 
         initAnim()
 
-        //Ключи webView
         //Приоретет к стялям приложения
         if(WebViewFeature.isFeatureSupported(WebViewFeature.FORCE_DARK)) {
-            WebSettingsCompat.setForceDark(
-                webView!!.getSettings(),
-                WebSettingsCompat.FORCE_DARK_OFF
-            );
+            WebSettingsCompat.setForceDark(webView!!.getSettings(), WebSettingsCompat.FORCE_DARK_OFF);
             if (Build.VERSION.SDK_INT >= 21) {
                 this.supportActionBar?.show()
                 getWindow().setStatusBarColor(getResources().getColor(R.color.black));
             }
         }
+
+        //Опредиляет размеры дисплея
         val width: Int = Resources.getSystem().displayMetrics.widthPixels
         val height: Int = Resources.getSystem().displayMetrics.heightPixels
 
+        //Ключи связки webView
         val webSettings = webView!!.settings
         mWebViewClient = myWebViewClient()
         webView!!.settings.javaScriptCanOpenWindowsAutomatically = true;
@@ -75,8 +74,10 @@ class MainActivity : AppCompatActivity() {
         webView!!.settings.javaScriptEnabled = true;
         webView!!.settings.domStorageEnabled = true;
 
-        webView!!.loadUrl("https://auroombet.com")
+        //Скармливаю url сайта
+        webView!!.loadUrl("https://auroombet.com/ru")
 
+        //Если размер дисплея ниже заданных параметров размер зайта 14 sp
         if (width <= 1080 && height <= 1920){
             webSettings.defaultFontSize = 14
         }
@@ -89,18 +90,20 @@ class MainActivity : AppCompatActivity() {
                 return true
             }
 
+            //Слушатель на первичную загрузку сайта
             override fun onPageStarted(view: WebView?, url: String?, favicon: Bitmap?) {
                 super.onPageStarted(view, url, favicon)
                 if (visibility != 1){
                     loadingView!!.start()
                     linearImage.visibility = View.VISIBLE
-                    l = 1
+                    downloadProgress = 1
                 }
             }
 
+            //Слушатель на повторную загрузку сайта
             override fun onPageFinished(view: WebView?, url: String?) {
                 super.onPageFinished(view, url)
-                if (l == 1){
+                if (downloadProgress == 1){
                     loadingView!!.stop()
                     linearImage.visibility = View.GONE
                     visibility = 1
