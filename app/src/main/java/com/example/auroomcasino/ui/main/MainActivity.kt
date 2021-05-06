@@ -1,6 +1,7 @@
 package com.example.auroomcasino.ui.main
 
 import android.annotation.SuppressLint
+import android.content.res.Resources
 import android.graphics.Bitmap
 import android.os.Build
 import android.os.Bundle
@@ -17,14 +18,10 @@ import androidx.webkit.WebSettingsCompat
 import androidx.webkit.WebViewFeature
 import com.example.auroomcasino.R
 import com.example.auroomcasino.utils.MyUtils
-import com.github.loadingview.LoadingDialog
 import com.google.android.gms.tasks.OnCompleteListener
 import com.google.firebase.database.*
 import com.google.firebase.iid.FirebaseInstanceId
-import io.reactivex.Observable
-import io.reactivex.android.schedulers.AndroidSchedulers
 import kotlinx.android.synthetic.main.activity_main.*
-import java.util.concurrent.TimeUnit
 
 
 class MainActivity : AppCompatActivity() {
@@ -36,9 +33,8 @@ class MainActivity : AppCompatActivity() {
     private var mWebChromeClient: myWebChromeClient? = null
     private var mWebViewClient: myWebViewClient? = null
     private var visibility = 0
+    private var l = 0
     private lateinit var linearImage: ConstraintLayout
-
-    private lateinit var descor: View
 
     @SuppressLint("ResourceType", "SetJavaScriptEnabled")
     public override fun onCreate(savedInstanceState: Bundle?) {
@@ -63,25 +59,27 @@ class MainActivity : AppCompatActivity() {
                 getWindow().setStatusBarColor(getResources().getColor(R.color.black));
             }
         }
+        val width: Int = Resources.getSystem().displayMetrics.widthPixels
+        val height: Int = Resources.getSystem().displayMetrics.heightPixels
 
-        mWebViewClient = myWebViewClient()
         val webSettings = webView!!.settings
-        webView!!.settings.javaScriptEnabled = true;
-        //**enabled dom storage**
-        webView!!.settings.domStorageEnabled = true;
-        //enabling javascript
+        mWebViewClient = myWebViewClient()
         webView!!.settings.javaScriptCanOpenWindowsAutomatically = true;
-        //database enabled
         webView!!.settings.databaseEnabled = true;
-
         webView!!.webViewClient = mWebViewClient!!
         mWebChromeClient = myWebChromeClient()
         webView!!.webChromeClient = mWebChromeClient
         webView!!.getSettings().setAppCacheEnabled(true);
         webView!!.settings.setAppCacheEnabled(true)
         webView!!.settings.saveFormData = true
-        webView!!.loadUrl("https://auroombet.com/ru")
-        webSettings.defaultFontSize = 16
+        webView!!.settings.javaScriptEnabled = true;
+        webView!!.settings.domStorageEnabled = true;
+
+        webView!!.loadUrl("https://auroombet.com")
+
+        if (width <= 1080 && height <= 1920){
+            webSettings.defaultFontSize = 14
+        }
 
 
         // Огроничение для выхода в системный браузер
@@ -96,14 +94,17 @@ class MainActivity : AppCompatActivity() {
                 if (visibility != 1){
                     loadingView!!.start()
                     linearImage.visibility = View.VISIBLE
+                    l = 1
                 }
             }
 
             override fun onPageFinished(view: WebView?, url: String?) {
                 super.onPageFinished(view, url)
-                loadingView!!.stop()
-                linearImage.visibility = View.GONE
-                visibility = 1
+                if (l == 1){
+                    loadingView!!.stop()
+                    linearImage.visibility = View.GONE
+                    visibility = 1
+                }
             }
         }
     }
@@ -148,11 +149,7 @@ class MainActivity : AppCompatActivity() {
 
     internal inner class myWebChromeClient : WebChromeClient() {
         private var mVideoProgressView: View? = null
-        override fun onShowCustomView(
-            view: View,
-            requestedOrientation: Int,
-            callback: CustomViewCallback
-        ) {
+        override fun onShowCustomView(view: View, requestedOrientation: Int, callback: CustomViewCallback) {
             onShowCustomView(view, callback) //To change body of overridden methods use File | Settings | File Templates.
         }
 
