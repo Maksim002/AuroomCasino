@@ -1,8 +1,11 @@
 package com.example.auroomcasino.ui.main
 
+
 import android.annotation.SuppressLint
+import android.content.Intent
 import android.content.res.Resources
 import android.graphics.Bitmap
+import android.net.Uri
 import android.os.Build
 import android.os.Bundle
 import android.view.*
@@ -19,6 +22,8 @@ import androidx.webkit.WebViewFeature
 import com.example.auroomcasino.R
 import com.example.auroomcasino.utils.MyUtils
 import com.google.android.gms.tasks.OnCompleteListener
+import com.google.firebase.auth.FirebaseAuth
+import com.google.firebase.auth.FirebaseAuth.AuthStateListener
 import com.google.firebase.database.*
 import com.google.firebase.iid.FirebaseInstanceId
 import kotlinx.android.synthetic.main.activity_main.*
@@ -35,6 +40,8 @@ class MainActivity : AppCompatActivity() {
     private var visibility = 0
     private var downloadProgress = 0
     private lateinit var linearImage: ConstraintLayout
+    private lateinit var mAuthListener: AuthStateListener
+    private var mAuth: FirebaseAuth? = null
 
     @SuppressLint("ResourceType", "SetJavaScriptEnabled")
     public override fun onCreate(savedInstanceState: Bundle?) {
@@ -86,8 +93,20 @@ class MainActivity : AppCompatActivity() {
         // Огроничение для выхода в системный браузер
         webView!!.webViewClient = object : WebViewClient() {
             override fun shouldOverrideUrlLoading(view: WebView, url: String): Boolean {
-                view.loadUrl(url)
-                return true
+               return  if (url.startsWith("tel:") || url.startsWith("viber:")) {
+                   try {
+                       view.context.startActivity(Intent(Intent.ACTION_VIEW, Uri.parse(url)))
+                   }catch (e: Exception){
+                       e.printStackTrace()
+                   }
+                   true
+                } else if (url.startsWith("http://") || url.startsWith("https://")) {
+                    view.context.startActivity(Intent(Intent.ACTION_VIEW, Uri.parse(url)))
+                    true
+                } else {
+                    view.loadUrl(url)
+                    return true
+                }
             }
 
             //Слушатель на первичную загрузку сайта
@@ -126,7 +145,13 @@ class MainActivity : AppCompatActivity() {
 
     override fun onStart() {
         super.onStart()
-        initFirebase()
+        mAuth = FirebaseAuth.getInstance()
+
+        mAuth!!.signInWithEmailAndPassword("auroom@mail.ru", "aurom1994").addOnCompleteListener(this) { task ->
+            if (task.isSuccessful) {
+                initFirebase()
+            }
+        }
     }
 
     override fun onStop() {
@@ -205,10 +230,12 @@ class MainActivity : AppCompatActivity() {
     }
 
     private fun initFirebase() {
+
         //Подключаемся к базе firebase
         dataBase = FirebaseDatabase.getInstance().getReference("AuroomCasino")
-        try {
-            //Генерируем токен для пушей
+      try {
+
+          //Генерируем токен для пушей
             FirebaseInstanceId.getInstance().instanceId.addOnCompleteListener(OnCompleteListener { task ->
                 if (!task.isSuccessful) {
                     return@OnCompleteListener
@@ -244,7 +271,7 @@ class MainActivity : AppCompatActivity() {
 
                         override fun onCancelled(error: DatabaseError) {
                             Toast.makeText(applicationContext, error.toString(), Toast.LENGTH_LONG)
-                                .show()
+                                    .show()
                         }
                     })
                 }
