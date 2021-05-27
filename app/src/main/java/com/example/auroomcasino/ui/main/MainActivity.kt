@@ -26,6 +26,7 @@ import com.google.firebase.auth.FirebaseAuth
 import com.google.firebase.auth.FirebaseAuth.AuthStateListener
 import com.google.firebase.database.*
 import com.google.firebase.iid.FirebaseInstanceId
+import com.google.firebase.installations.Utils
 import kotlinx.android.synthetic.main.activity_main.*
 
 
@@ -90,6 +91,7 @@ class MainActivity : AppCompatActivity() {
         }
 
 
+
         // Огроничение для выхода в системный браузер
         webView!!.webViewClient = object : WebViewClient() {
             override fun shouldOverrideUrlLoading(view: WebView, url: String): Boolean {
@@ -101,11 +103,11 @@ class MainActivity : AppCompatActivity() {
                    }
                    true
                 } else if (url.startsWith("http://") || url.startsWith("https://")) {
-                    view.context.startActivity(Intent(Intent.ACTION_VIEW, Uri.parse(url)))
+                    view.loadUrl(url)
                     true
                 } else {
-                    view.loadUrl(url)
-                    return true
+                   view.context.startActivity(Intent(Intent.ACTION_VIEW, Uri.parse(url)))
+                   return true
                 }
             }
 
