@@ -90,8 +90,6 @@ class MainActivity : AppCompatActivity() {
             webSettings.defaultFontSize = 14
         }
 
-
-
         // Огроничение для выхода в системный браузер
         webView!!.webViewClient = object : WebViewClient() {
             override fun shouldOverrideUrlLoading(view: WebView, url: String): Boolean {
