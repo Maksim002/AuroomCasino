@@ -26,7 +26,6 @@ import com.google.firebase.auth.FirebaseAuth
 import com.google.firebase.auth.FirebaseAuth.AuthStateListener
 import com.google.firebase.database.*
 import com.google.firebase.iid.FirebaseInstanceId
-import com.google.firebase.installations.Utils
 import kotlinx.android.synthetic.main.activity_main.*
 
 
@@ -83,7 +82,7 @@ class MainActivity : AppCompatActivity() {
         webView!!.settings.domStorageEnabled = true;
 
         //Скармливаю url сайта
-        webView!!.loadUrl("https://auroombet.com/ru")
+        webView!!.loadUrl("https://aur00mbet.com")
 
         //Если размер дисплея ниже заданных параметров размер зайта 14 sp
         if (width <= 1080 && height <= 1920){
