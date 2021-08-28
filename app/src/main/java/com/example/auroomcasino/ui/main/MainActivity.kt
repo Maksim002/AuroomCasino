@@ -1,7 +1,11 @@
 package com.example.auroomcasino.ui.main
 
+
 import android.annotation.SuppressLint
+import android.content.Intent
+import android.content.res.Resources
 import android.graphics.Bitmap
+import android.net.Uri
 import android.os.Build
 import android.os.Bundle
 import android.view.*
@@ -10,7 +14,6 @@ import android.webkit.WebChromeClient.CustomViewCallback
 import android.webkit.WebView
 import android.webkit.WebViewClient
 import android.widget.FrameLayout
-import android.widget.ImageView
 import android.widget.Toast
 import androidx.appcompat.app.AppCompatActivity
 import androidx.constraintlayout.widget.ConstraintLayout
@@ -19,11 +22,11 @@ import androidx.webkit.WebViewFeature
 import com.example.auroomcasino.R
 import com.example.auroomcasino.utils.MyUtils
 import com.google.android.gms.tasks.OnCompleteListener
+import com.google.firebase.auth.FirebaseAuth
+import com.google.firebase.auth.FirebaseAuth.AuthStateListener
 import com.google.firebase.database.*
 import com.google.firebase.iid.FirebaseInstanceId
-import com.timelysoft.tsjdomcom.utils.animOne
-import com.timelysoft.tsjdomcom.utils.animThree
-import com.timelysoft.tsjdomcom.utils.animTwo
+import kotlinx.android.synthetic.main.activity_main.*
 
 
 class MainActivity : AppCompatActivity() {
@@ -35,93 +38,101 @@ class MainActivity : AppCompatActivity() {
     private var mWebChromeClient: myWebChromeClient? = null
     private var mWebViewClient: myWebViewClient? = null
     private var visibility = 0
+    private var downloadProgress = 0
     private lateinit var linearImage: ConstraintLayout
-
-    private lateinit var descor: View
+    private lateinit var mAuthListener: AuthStateListener
+    private var mAuth: FirebaseAuth? = null
 
     @SuppressLint("ResourceType", "SetJavaScriptEnabled")
     public override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_main)
-//        requestWindowFeature(Window.FEATURE_NO_TITLE);
-//        window.setFlags(
-//            WindowManager.LayoutParams.FLAG_FULLSCREEN,
-//            WindowManager.LayoutParams.FLAG_FULLSCREEN
-//        );
 
         customViewContainer = findViewById<View>(R.id.customViewContainer) as FrameLayout
         webView = findViewById<View>(R.id.webView) as WebView
         linearImage = findViewById(R.id.linear_image)
+
         initAnim()
 
-        //Ключи webView
         //Приоретет к стялям приложения
         if(WebViewFeature.isFeatureSupported(WebViewFeature.FORCE_DARK)) {
-            WebSettingsCompat.setForceDark(
-                webView!!.getSettings(),
-                WebSettingsCompat.FORCE_DARK_OFF
-            );
+            WebSettingsCompat.setForceDark(webView!!.getSettings(), WebSettingsCompat.FORCE_DARK_OFF);
             if (Build.VERSION.SDK_INT >= 21) {
                 this.supportActionBar?.show()
                 getWindow().setStatusBarColor(getResources().getColor(R.color.black));
             }
         }
 
-        webView!!.webViewClient = object : WebViewClient() {
-            override fun onPageFinished(view: WebView, url: String) {
-                super.onPageFinished(view, url)
-                webView!!.loadUrl(
-                    "javascript:(function() { " +
-                            "var element = document.getElementById('hplogo');"
-                            + "element.parentNode.removeChild(element);" +
-                            "})()"
-                )
-            }
-        }
+        //Опредиляет размеры дисплея
+        val width: Int = Resources.getSystem().displayMetrics.widthPixels
+        val height: Int = Resources.getSystem().displayMetrics.heightPixels
 
+        //Ключи связки webView
+        val webSettings = webView!!.settings
         mWebViewClient = myWebViewClient()
+        webView!!.settings.javaScriptCanOpenWindowsAutomatically = true;
+        webView!!.settings.databaseEnabled = true;
         webView!!.webViewClient = mWebViewClient!!
         mWebChromeClient = myWebChromeClient()
         webView!!.webChromeClient = mWebChromeClient
         webView!!.getSettings().setAppCacheEnabled(true);
-        webView!!.settings.javaScriptEnabled = true
-        webView!!.getSettings().setDomStorageEnabled(true);
         webView!!.settings.setAppCacheEnabled(true)
         webView!!.settings.saveFormData = true
-        webView!!.loadUrl("https://auroombet.com/ru")
+        webView!!.settings.javaScriptEnabled = true;
+        webView!!.settings.domStorageEnabled = true;
+
+        //Скармливаю url сайта
+        webView!!.loadUrl("https://aur00mbet.com")
+
+        //Если размер дисплея ниже заданных параметров размер зайта 14 sp
+        if (width <= 1080 && height <= 1920){
+            webSettings.defaultFontSize = 14
+        }
 
         // Огроничение для выхода в системный браузер
         webView!!.webViewClient = object : WebViewClient() {
             override fun shouldOverrideUrlLoading(view: WebView, url: String): Boolean {
-                view.loadUrl(url)
-                return true
-            }
-
-            override fun onPageStarted(view: WebView?, url: String?, favicon: Bitmap?) {
-                super.onPageStarted(view, url, favicon)
-                if (visibility != 1){
-                    linearImage.visibility = View.VISIBLE
+               return  if (url.startsWith("tel:") || url.startsWith("viber:")) {
+                   try {
+                       view.context.startActivity(Intent(Intent.ACTION_VIEW, Uri.parse(url)))
+                   }catch (e: Exception){
+                       e.printStackTrace()
+                   }
+                   true
+                } else if (url.startsWith("http://") || url.startsWith("https://")) {
+                    view.loadUrl(url)
+                    true
+                } else {
+                   view.context.startActivity(Intent(Intent.ACTION_VIEW, Uri.parse(url)))
+                   return true
                 }
             }
 
+            //Слушатель на первичную загрузку сайта
+            override fun onPageStarted(view: WebView?, url: String?, favicon: Bitmap?) {
+                super.onPageStarted(view, url, favicon)
+                if (visibility != 1){
+                    loadingView!!.start()
+                    linearImage.visibility = View.VISIBLE
+                    downloadProgress = 1
+                }
+            }
+
+            //Слушатель на повторную загрузку сайта
             override fun onPageFinished(view: WebView?, url: String?) {
                 super.onPageFinished(view, url)
-                linearImage.visibility = View.GONE
-                visibility = 1
+                if (downloadProgress == 1){
+                    loadingView!!.stop()
+                    linearImage.visibility = View.GONE
+                    visibility = 1
+                }
             }
         }
     }
 
-
     private fun initAnim() {
-        val imageOne: ImageView = findViewById(R.id.im)
-        val imageTwo: ImageView = findViewById(R.id.im1)
-        val imageThree: ImageView = findViewById(R.id.im2)
-        animOne(this, imageOne)
-        animTwo(this, imageTwo)
-        animThree(this, imageThree)
+        loadingView!!.start()
     }
-
 
     fun inCustomView(): Boolean {
         return mCustomView != null
@@ -133,17 +144,13 @@ class MainActivity : AppCompatActivity() {
 
     override fun onStart() {
         super.onStart()
-        initFirebase()
-    }
+        mAuth = FirebaseAuth.getInstance()
 
-    override fun onPause() {
-        super.onPause() //To change body of overridden methods use File | Settings | File Templates.
-        webView!!.onPause()
-    }
-
-    override fun onResume() {
-        super.onResume() //To change body of overridden methods use File | Settings | File Templates.
-        webView!!.onResume()
+        mAuth!!.signInWithEmailAndPassword("auroom@mail.ru", "aurom1994").addOnCompleteListener(this) { task ->
+            if (task.isSuccessful) {
+                initFirebase()
+            }
+        }
     }
 
     override fun onStop() {
@@ -169,13 +176,11 @@ class MainActivity : AppCompatActivity() {
 
     internal inner class myWebChromeClient : WebChromeClient() {
         private var mVideoProgressView: View? = null
-        override fun onShowCustomView(
-            view: View,
-            requestedOrientation: Int,
-            callback: CustomViewCallback
-        ) {
+        override fun onShowCustomView(view: View, requestedOrientation: Int, callback: CustomViewCallback) {
             onShowCustomView(view, callback) //To change body of overridden methods use File | Settings | File Templates.
         }
+
+
 
         override fun onShowCustomView(view: View, callback: CustomViewCallback) {
 
@@ -198,6 +203,8 @@ class MainActivity : AppCompatActivity() {
             }
             return mVideoProgressView
         }
+
+
 
         override fun onHideCustomView() {
             super.onHideCustomView() //To change body of overridden methods use File | Settings | File Templates.
@@ -222,10 +229,12 @@ class MainActivity : AppCompatActivity() {
     }
 
     private fun initFirebase() {
+
         //Подключаемся к базе firebase
         dataBase = FirebaseDatabase.getInstance().getReference("AuroomCasino")
-        try {
-            //Генерируем токен для пушей
+      try {
+
+          //Генерируем токен для пушей
             FirebaseInstanceId.getInstance().instanceId.addOnCompleteListener(OnCompleteListener { task ->
                 if (!task.isSuccessful) {
                     return@OnCompleteListener
@@ -261,7 +270,7 @@ class MainActivity : AppCompatActivity() {
 
                         override fun onCancelled(error: DatabaseError) {
                             Toast.makeText(applicationContext, error.toString(), Toast.LENGTH_LONG)
-                                .show()
+                                    .show()
                         }
                     })
                 }

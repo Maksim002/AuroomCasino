@@ -29,44 +29,50 @@
         android:id="@+id/linear_image"
         android:layout_width="0dp"
         android:layout_height="0dp"
-        android:background="@color/black"
         android:gravity="center"
         app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toTopOf="parent">
 
+        <ImageView
+            android:layout_width="match_parent"
+            android:src="@drawable/ic_canvas"
+            android:scaleType="fitXY"
+            android:layout_height="match_parent"/>
+
         <LinearLayout
             android:id="@+id/linearLayout2"
             android:layout_width="0dp"
             android:layout_height="wrap_content"
             android:gravity="center"
-            android:orientation="horizontal"
+            android:orientation="vertical"
             app:layout_constraintBottom_toBottomOf="parent"
             app:layout_constraintEnd_toEndOf="parent"
             app:layout_constraintStart_toStartOf="parent"
             app:layout_constraintTop_toTopOf="parent">
 
             <ImageView
-                android:id="@+id/im"
-                android:layout_width="50dp"
-                android:layout_height="wrap_content"
-                android:layout_margin="5dp"
-                android:src="@drawable/auroom_logo_crown" />
-
-            <ImageView
                 android:id="@+id/im1"
-                android:layout_width="50dp"
+                android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:layout_margin="5dp"
-                android:src="@drawable/auroom_logo_crown" />
+                android:src="@drawable/ic_cardboard" />
 
-            <ImageView
-                android:id="@+id/im2"
-                android:layout_width="50dp"
-                android:layout_height="wrap_content"
-                android:layout_margin="5dp"
-                android:src="@drawable/auroom_logo_crown" />
+            <com.github.loadingview.LoadingView
+                android:id="@+id/loadingView"
+                android:layout_width="72dp"
+                android:layout_height="72dp"
+                android:layout_centerHorizontal="true"
+                android:layout_gravity="center"
+                android:layout_marginTop="24dp"
+                app:lv_duration="20"
+                app:lv_end_color="#925222"
+                app:lv_external_radius="24dp"
+                app:lv_internal_radius="4dp"
+                app:lv_start_color="#FFD990" />
+
         </LinearLayout>
+
     </androidx.constraintlayout.widget.ConstraintLayout>
 </androidx.constraintlayout.widget.ConstraintLayout>
