@@ -1,3 +1,5 @@
 <resources>
     <string name="app_name">Auroom Casino</string>
+    <string name="mirror_error">There are no mirrors available. \nTry again later or write to us on telegram \n(https://t.me/auroombetcom) or instagram </string>
+    <string name="mirror_errorTwo">(https://www.instagram.com/auroombet/)</string>
 </resources>

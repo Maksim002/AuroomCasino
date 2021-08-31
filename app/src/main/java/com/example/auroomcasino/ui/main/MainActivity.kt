@@ -21,10 +21,10 @@ import androidx.constraintlayout.widget.ConstraintLayout
 import androidx.webkit.WebSettingsCompat
 import androidx.webkit.WebViewFeature
 import com.example.auroomcasino.R
+import com.example.auroomcasino.ui.fragment.ExistingBottomFragment
 import com.example.auroomcasino.utils.MyUtils
 import com.google.android.gms.tasks.OnCompleteListener
 import com.google.firebase.auth.FirebaseAuth
-import com.google.firebase.auth.FirebaseAuth.AuthStateListener
 import com.google.firebase.database.*
 import com.google.firebase.iid.FirebaseInstanceId
 import com.google.firebase.remoteconfig.FirebaseRemoteConfig
@@ -76,13 +76,19 @@ class MainActivity : AppCompatActivity() {
                     if (urlApi.isNotEmpty()) {
                         servesApi(urlApi)
                     }else{
-                        Toast.makeText(this, "Нет доступных зеркал!", Toast.LENGTH_LONG).show()
+                        errorFragment()
                     }
                 }
             } else {
-                Toast.makeText(this, "Ошибка " + task, Toast.LENGTH_LONG).show()
+                errorFragment()
             }
         })
+    }
+
+    private fun errorFragment(){
+        val bottomSheetDialogFragment = ExistingBottomFragment()
+        bottomSheetDialogFragment.isCancelable = false;
+        bottomSheetDialogFragment.show(supportFragmentManager, bottomSheetDialogFragment.tag)
     }
 
     private fun servesApi(urlApi: String){
